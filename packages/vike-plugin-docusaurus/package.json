@@ -1,0 +1,56 @@
+{
+  "name": "@haakco/vike-plugin-docusaurus",
+  "version": "0.1.0",
+  "description": "Vike plugin and build helpers for serving a Docusaurus site with Pagefind",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haakco/haakco-vike-docusaurus.git",
+    "directory": "packages/vike-plugin-docusaurus"
+  },
+  "homepage": "https://github.com/haakco/haakco-vike-docusaurus/tree/main/packages/vike-plugin-docusaurus",
+  "bugs": {
+    "url": "https://github.com/haakco/haakco-vike-docusaurus/issues"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "haakco-vike-docusaurus-build": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "pnpm exec tsc -p tsconfig.json --types node",
+    "typecheck": "pnpm exec tsc -p tsconfig.json --noEmit --types node"
+  },
+  "keywords": [
+    "vike",
+    "vite",
+    "docusaurus",
+    "pagefind",
+    "haakco"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pagefind": "^1.4.0"
+  },
+  "peerDependencies": {
+    "vite": "^7.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3"
+  }
+}
