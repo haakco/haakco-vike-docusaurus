@@ -56,12 +56,7 @@ const DEFAULT_MOUNT_PATH = "/docs";
 const DEFAULT_TEMP_ROOT = path.join("tmp", "haakco-vike-docusaurus");
 const DEFAULT_PROXY_PORT = 3001;
 const DEFAULT_DEBOUNCE_MS = 250;
-const GENERATED_SITE_DIRS = [
-  ".docusaurus",
-  "build",
-  ".cache",
-  "node_modules",
-] as const;
+const GENERATED_SITE_DIRS = [".docusaurus", "build", ".cache", "node_modules"] as const;
 
 const shouldIgnoreWatchPath = (siteDir: string, filePath: string) => {
   const relativePath = path.relative(siteDir, filePath);
@@ -71,9 +66,7 @@ const shouldIgnoreWatchPath = (siteDir: string, filePath: string) => {
   }
 
   return GENERATED_SITE_DIRS.some(
-    (segment) =>
-      relativePath === segment ||
-      relativePath.startsWith(`${segment}${path.sep}`),
+    (segment) => relativePath === segment || relativePath.startsWith(`${segment}${path.sep}`),
   );
 };
 
@@ -84,20 +77,14 @@ const normalizeMountPath = (mountPath: string) => {
 
 const resolveCommand = (command: string[], cwd: string) => {
   if (command.length === 0) {
-    throw new Error(
-      "packageManagerCommand must include at least one command segment.",
-    );
+    throw new Error("packageManagerCommand must include at least one command segment.");
   }
 
   const [bin, ...args] = command;
   return { bin, args, cwd };
 };
 
-const runCommand = async (
-  command: string[],
-  cwd: string,
-  log: (message: string) => void,
-) => {
+const runCommand = async (command: string[], cwd: string, log: (message: string) => void) => {
   const { bin, args } = resolveCommand(command, cwd);
 
   await new Promise<void>((resolve, reject) => {
@@ -122,11 +109,7 @@ const runCommand = async (
         resolve();
         return;
       }
-      reject(
-        new Error(
-          `Command failed with exit code ${code}: ${bin} ${args.join(" ")}`,
-        ),
-      );
+      reject(new Error(`Command failed with exit code ${code}: ${bin} ${args.join(" ")}`));
     });
   });
 };
@@ -166,16 +149,11 @@ const swapDirs = async (nextDir: string, liveDir: string) => {
   }
 };
 
-const createPagefindIndex = async (
-  sitePath: string,
-  log: (message: string) => void,
-) => {
+const createPagefindIndex = async (sitePath: string, log: (message: string) => void) => {
   const { index, errors } = await createIndex();
 
   if (!index) {
-    throw new Error(
-      `Pagefind service did not return an index: ${errors.join("; ")}`,
-    );
+    throw new Error(`Pagefind service did not return an index: ${errors.join("; ")}`);
   }
 
   const indexingResult = await index.addDirectory({
@@ -183,9 +161,7 @@ const createPagefindIndex = async (
   });
 
   if (indexingResult.errors.length > 0) {
-    throw new Error(
-      `Pagefind directory indexing failed: ${indexingResult.errors.join("; ")}`,
-    );
+    throw new Error(`Pagefind directory indexing failed: ${indexingResult.errors.join("; ")}`);
   }
 
   const result = await index.writeFiles({
@@ -204,16 +180,9 @@ export const buildDocusaurusSite = async (
 ): Promise<BuildResult> => {
   const rootDir = path.resolve(options.rootDir ?? process.cwd());
   const siteDir = path.resolve(rootDir, options.siteDir ?? DEFAULT_SITE_DIR);
-  const liveOutputDir = path.resolve(
-    rootDir,
-    options.outputDir ?? DEFAULT_OUTPUT_DIR,
-  );
-  const tempRootDir = path.resolve(
-    rootDir,
-    options.tempRootDir ?? DEFAULT_TEMP_ROOT,
-  );
-  const packageManagerCommand =
-    options.packageManagerCommand ?? DEFAULT_PACKAGE_MANAGER_COMMAND;
+  const liveOutputDir = path.resolve(rootDir, options.outputDir ?? DEFAULT_OUTPUT_DIR);
+  const tempRootDir = path.resolve(rootDir, options.tempRootDir ?? DEFAULT_TEMP_ROOT);
+  const packageManagerCommand = options.packageManagerCommand ?? DEFAULT_PACKAGE_MANAGER_COMMAND;
   const log = options.log ?? (() => {});
 
   await ensureDir(tempRootDir);
@@ -222,11 +191,7 @@ export const buildDocusaurusSite = async (
   const docusaurusBuildDir = path.join(siteDir, "build");
 
   log(`Building Docusaurus from ${siteDir}`);
-  await runCommand(
-    [...packageManagerCommand, "--dir", siteDir, "run", "build"],
-    rootDir,
-    log,
-  );
+  await runCommand([...packageManagerCommand, "--dir", siteDir, "run", "build"], rootDir, log);
   await copyDir(docusaurusBuildDir, docsBuildDir);
   log(`Indexing Pagefind into ${docsBuildDir}`);
   await createPagefindIndex(docsBuildDir, log);
@@ -254,10 +219,7 @@ const tryServeStaticFile = (
   let filePath = pathname.replace(new RegExp(`^${mountPath}`), "");
   if (!filePath || filePath === "/") filePath = "/index.html";
 
-  const candidates = [
-    path.join(baseDir, filePath),
-    path.join(baseDir, filePath, "index.html"),
-  ];
+  const candidates = [path.join(baseDir, filePath), path.join(baseDir, filePath, "index.html")];
 
   for (const candidate of candidates) {
     if (!fs.existsSync(candidate) || !fs.statSync(candidate).isFile()) {
@@ -309,10 +271,7 @@ class DocsBuildManager {
       log,
     };
     const rootDir = path.resolve(options.rootDir ?? process.cwd());
-    this.liveOutputDir = path.resolve(
-      rootDir,
-      options.outputDir ?? DEFAULT_OUTPUT_DIR,
-    );
+    this.liveOutputDir = path.resolve(rootDir, options.outputDir ?? DEFAULT_OUTPUT_DIR);
   }
 
   get outputDir() {
@@ -343,8 +302,7 @@ class DocsBuildManager {
         this.server.ws.send({ type: "full-reload" });
         this.log(`Docs rebuild completed: ${reason}`);
       } catch (error) {
-        const normalizedError =
-          error instanceof Error ? error : new Error(String(error));
+        const normalizedError = error instanceof Error ? error : new Error(String(error));
         await this.hooks.onBuildFailure?.(reason, normalizedError);
         this.log(`Docs rebuild failed: ${normalizedError.message}`);
       } finally {
@@ -362,9 +320,7 @@ class DocsBuildManager {
   }
 }
 
-export const vikePluginDocusaurus = (
-  options: VikeDocusaurusPluginOptions = {},
-): PluginOption => {
+export const vikePluginDocusaurus = (options: VikeDocusaurusPluginOptions = {}): PluginOption => {
   const rootDir = path.resolve(options.rootDir ?? process.cwd());
   const siteDir = path.resolve(rootDir, options.siteDir ?? DEFAULT_SITE_DIR);
   const mountPath = normalizeMountPath(options.mountPath ?? DEFAULT_MOUNT_PATH);
@@ -384,9 +340,7 @@ export const vikePluginDocusaurus = (
       if (options.dev?.watch !== false) {
         server.watcher.add(siteDir);
         if (options.dev?.ignoreGeneratedDirs !== false) {
-          const generatedDirs = GENERATED_SITE_DIRS.map((dirName) =>
-            path.join(siteDir, dirName),
-          );
+          const generatedDirs = GENERATED_SITE_DIRS.map((dirName) => path.join(siteDir, dirName));
           server.watcher.unwatch(generatedDirs);
         }
         server.watcher.on("add", (filePath) => {
@@ -396,16 +350,12 @@ export const vikePluginDocusaurus = (
         });
         server.watcher.on("change", (filePath) => {
           if (!shouldIgnoreWatchPath(siteDir, filePath)) {
-            buildManager?.schedule(
-              `changed ${path.relative(siteDir, filePath)}`,
-            );
+            buildManager?.schedule(`changed ${path.relative(siteDir, filePath)}`);
           }
         });
         server.watcher.on("unlink", (filePath) => {
           if (!shouldIgnoreWatchPath(siteDir, filePath)) {
-            buildManager?.schedule(
-              `removed ${path.relative(siteDir, filePath)}`,
-            );
+            buildManager?.schedule(`removed ${path.relative(siteDir, filePath)}`);
           }
         });
       }
@@ -416,10 +366,7 @@ export const vikePluginDocusaurus = (
         const url = req.originalUrl ?? req.url ?? "";
         if (!url.startsWith(mountPath)) return next();
 
-        if (
-          buildManager &&
-          tryServeStaticFile(buildManager.outputDir, url, mountPath, res)
-        ) {
+        if (buildManager && tryServeStaticFile(buildManager.outputDir, url, mountPath, res)) {
           return;
         }
 

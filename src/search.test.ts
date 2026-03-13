@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildHighlightedSearchUrl,
-  resolvePagefindSearchFeatures,
-} from "./search.js";
+import { buildHighlightedSearchUrl, resolvePagefindSearchFeatures } from "./search.js";
 
 describe("resolvePagefindSearchFeatures", () => {
   it("uses feature flags to derive defaults", () => {
@@ -46,8 +43,8 @@ describe("resolvePagefindSearchFeatures", () => {
 
 describe("buildHighlightedSearchUrl", () => {
   it("preserves existing query params while adding the highlight term", () => {
-    expect(
-      buildHighlightedSearchUrl("/docs/mcp/?tab=api", "highlight", "MCP"),
-    ).toBe("/docs/mcp/?tab=api&highlight=MCP");
+    expect(buildHighlightedSearchUrl("/docs/mcp/?tab=api", "highlight", "MCP")).toBe(
+      "/docs/mcp/?tab=api&highlight=MCP",
+    );
   });
 });

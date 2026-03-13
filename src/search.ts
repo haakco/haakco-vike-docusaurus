@@ -30,9 +30,7 @@ type PagefindSearchModule = {
   filters?: () => Promise<unknown>;
 };
 
-type PagefindHighlightConstructor = new (
-  options?: Record<string, unknown>,
-) => unknown;
+type PagefindHighlightConstructor = new (options?: Record<string, unknown>) => unknown;
 
 export interface PagefindSubResult {
   url: string;
@@ -41,10 +39,7 @@ export interface PagefindSubResult {
 }
 
 export interface PagefindSearchResult<
-  TMeta extends Record<string, string | undefined> = Record<
-    string,
-    string | undefined
-  >,
+  TMeta extends Record<string, string | undefined> = Record<string, string | undefined>,
 > {
   url: string;
   title: string;
@@ -65,9 +60,7 @@ export interface PagefindHighlightFeatureOptions {
   constructorOptions?: Record<string, unknown>;
 }
 
-export interface PagefindMetadataFeatureOptions<
-  TMetadataField extends string = string,
-> {
+export interface PagefindMetadataFeatureOptions<TMetadataField extends string = string> {
   fields: readonly TMetadataField[];
 }
 
@@ -83,9 +76,7 @@ export interface PagefindSubResultsFeatureOptions {
   maxItems?: number;
 }
 
-export interface PagefindSearchFeatures<
-  TMetadataField extends string = string,
-> {
+export interface PagefindSearchFeatures<TMetadataField extends string = string> {
   highlighting?: boolean | PagefindHighlightFeatureOptions;
   metadata?: false | PagefindMetadataFeatureOptions<TMetadataField>;
   filters?: false | PagefindFiltersFeatureOptions;
@@ -93,9 +84,7 @@ export interface PagefindSearchFeatures<
   subResults?: boolean | PagefindSubResultsFeatureOptions;
 }
 
-export interface PagefindBrowserSearchOptions<
-  TMetadataField extends string = string,
-> {
+export interface PagefindBrowserSearchOptions<TMetadataField extends string = string> {
   baseUrl: string;
   features?: PagefindSearchFeatures<TMetadataField>;
   highlightParam?: string | false;
@@ -110,9 +99,7 @@ export interface PagefindHighlightOptions {
   constructorOptions?: Record<string, unknown>;
 }
 
-export interface ResolvedPagefindSearchFeatures<
-  TMetadataField extends string = string,
-> {
+export interface ResolvedPagefindSearchFeatures<TMetadataField extends string = string> {
   highlighting: null | {
     param: string;
     constructorOptions: Record<string, unknown>;
@@ -123,11 +110,8 @@ export interface ResolvedPagefindSearchFeatures<
   subResultLimit?: number;
 }
 
-export const buildHighlightedSearchUrl = (
-  url: string,
-  key: string,
-  value: string,
-) => withSearchParam(url, key, value);
+export const buildHighlightedSearchUrl = (url: string, key: string, value: string) =>
+  withSearchParam(url, key, value);
 
 const resolveHighlightFeature = <TMetadataField extends string>(
   options: PagefindBrowserSearchOptions<TMetadataField>,
@@ -182,9 +166,7 @@ const resolveSubResultLimit = <TMetadataField extends string>(
   return undefined;
 };
 
-export const resolvePagefindSearchFeatures = <
-  TMetadataField extends string = string,
->(
+export const resolvePagefindSearchFeatures = <TMetadataField extends string = string>(
   options: PagefindBrowserSearchOptions<TMetadataField>,
 ): ResolvedPagefindSearchFeatures<TMetadataField> => ({
   highlighting: resolveHighlightFeature(options),
@@ -194,8 +176,7 @@ export const resolvePagefindSearchFeatures = <
   subResultLimit: resolveSubResultLimit(options),
 });
 
-const withTrailingSlash = (value: string) =>
-  value.endsWith("/") ? value : `${value}/`;
+const withTrailingSlash = (value: string) => (value.endsWith("/") ? value : `${value}/`);
 
 const buildBundlePath = (baseUrl: string, fileName: string) =>
   `${withTrailingSlash(baseUrl)}pagefind/${fileName}`;
@@ -227,9 +208,7 @@ const resolveHighlightConstructor = (module: Record<string, unknown>) => {
     module.default ??
     (globalThis as Record<string, unknown>).PagefindHighlight;
   if (typeof candidate !== "function") {
-    throw new Error(
-      "PagefindHighlight constructor not found in pagefind-highlight.js",
-    );
+    throw new Error("PagefindHighlight constructor not found in pagefind-highlight.js");
   }
   return candidate as PagefindHighlightConstructor;
 };
@@ -251,9 +230,7 @@ export const enablePagefindHighlighting = async ({
   });
 };
 
-export const createPagefindSearchClient = <
-  TMetadataField extends string = string,
->({
+export const createPagefindSearchClient = <TMetadataField extends string = string>({
   baseUrl,
   ...options
 }: PagefindBrowserSearchOptions<TMetadataField>) => {
@@ -283,11 +260,7 @@ export const createPagefindSearchClient = <
     search: async (
       query: string,
       options: PagefindSearchQueryOptions = {},
-    ): Promise<
-      PagefindSearchResult<
-        Record<TMetadataField | "title", string | undefined>
-      >[]
-    > => {
+    ): Promise<PagefindSearchResult<Record<TMetadataField | "title", string | undefined>>[]> => {
       const pagefind = await loadModule();
 
       const response = await pagefind.search(query, {
@@ -295,26 +268,14 @@ export const createPagefindSearchClient = <
         sort: options.sort ?? resolvedFeatures.defaultSort,
       });
 
-      const rawResults = await Promise.all(
-        response.results.map((result) => result.data()),
-      );
+      const rawResults = await Promise.all(response.results.map((result) => result.data()));
 
-      const limitedResults = rawResults.slice(
-        0,
-        options.limit ?? rawResults.length,
-      );
+      const limitedResults = rawResults.slice(0, options.limit ?? rawResults.length);
 
       return limitedResults.map((result) => {
-        const meta = (result.meta ?? {}) as Record<
-          TMetadataField | "title",
-          string | undefined
-        >;
+        const meta = (result.meta ?? {}) as Record<TMetadataField | "title", string | undefined>;
         const url = resolvedFeatures.highlighting
-          ? buildHighlightedSearchUrl(
-              result.url,
-              resolvedFeatures.highlighting.param,
-              query,
-            )
+          ? buildHighlightedSearchUrl(result.url, resolvedFeatures.highlighting.param, query)
           : result.url;
 
         return {
@@ -324,16 +285,10 @@ export const createPagefindSearchClient = <
           meta,
           metadata: pickMetadata(
             meta,
-            resolvedFeatures.metadataFields as readonly (
-              | TMetadataField
-              | "title"
-            )[],
+            resolvedFeatures.metadataFields as readonly (TMetadataField | "title")[],
           ),
           subResults: (result.sub_results ?? [])
-            .slice(
-              0,
-              resolvedFeatures.subResultLimit ?? result.sub_results?.length,
-            )
+            .slice(0, resolvedFeatures.subResultLimit ?? result.sub_results?.length)
             .map((subResult) => ({
               ...subResult,
               url: resolvedFeatures.highlighting

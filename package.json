@@ -33,13 +33,18 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm exec tsc -p tsconfig.json --types node",
+    "build": "pnpm run build:clean && pnpm exec tsc -p tsconfig.json --types node",
+    "build:clean": "node -e \"import('node:fs/promises').then((fs) => fs.rm('dist', { recursive: true, force: true }))\"",
     "typecheck": "pnpm exec tsc -p tsconfig.json --noEmit --types node",
     "lint": "pnpm run lint:biome && pnpm run lint:complexity && pnpm run lint:dup && pnpm run typecheck",
-    "lint:biome": "pnpm exec biome check src package.json tsconfig.json README.md --colors=off",
+    "lint:biome": "pnpm exec biome check . --colors=off",
+    "lint:ci": "pnpm run lint",
     "lint:complexity": "pnpm exec biome lint src --colors=off --only=lint/complexity/noExcessiveCognitiveComplexity",
-    "lint:dup": "pnpm exec jscpd src README.md package.json tsconfig.json --pattern \"**/*.{ts,md,json}\" --ignore \"**/node_modules/**,**/dist/**\" --min-lines 5 --min-tokens 50 --threshold 0",
-    "test": "pnpm exec vitest run"
+    "lint:dup": "pnpm exec jscpd --config jscpd.config.json",
+    "lint:fix": "pnpm exec biome check . --write --unsafe --colors=off",
+    "test": "pnpm exec vitest run --config vitest.config.ts",
+    "test:ci": "pnpm exec vitest run --config vitest.config.ts --coverage",
+    "verify": "pnpm run lint && pnpm run test:ci && pnpm run build"
   },
   "keywords": [
     "vike",
@@ -60,6 +65,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.6",
     "@types/node": "^24.3.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "jscpd": "^4.0.5",
     "typescript": "^5.9.2",
     "vite": "^7.1.3",

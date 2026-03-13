@@ -25,19 +25,13 @@ const DEFAULT_MOUNT_PATH = "/docs";
 const DEFAULT_TEMP_ROOT = path.join("tmp", "haakco-vike-docusaurus");
 const DEFAULT_PROXY_PORT = 3001;
 const DEFAULT_DEBOUNCE_MS = 250;
-const GENERATED_SITE_DIRS = [
-    ".docusaurus",
-    "build",
-    ".cache",
-    "node_modules",
-];
+const GENERATED_SITE_DIRS = [".docusaurus", "build", ".cache", "node_modules"];
 const shouldIgnoreWatchPath = (siteDir, filePath) => {
     const relativePath = path.relative(siteDir, filePath);
     if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
         return true;
     }
-    return GENERATED_SITE_DIRS.some((segment) => relativePath === segment ||
-        relativePath.startsWith(`${segment}${path.sep}`));
+    return GENERATED_SITE_DIRS.some((segment) => relativePath === segment || relativePath.startsWith(`${segment}${path.sep}`));
 };
 const normalizeMountPath = (mountPath) => {
     if (mountPath === "/")
@@ -160,10 +154,7 @@ const tryServeStaticFile = (baseDir, requestPath, mountPath, res) => {
     let filePath = pathname.replace(new RegExp(`^${mountPath}`), "");
     if (!filePath || filePath === "/")
         filePath = "/index.html";
-    const candidates = [
-        path.join(baseDir, filePath),
-        path.join(baseDir, filePath, "index.html"),
-    ];
+    const candidates = [path.join(baseDir, filePath), path.join(baseDir, filePath, "index.html")];
     for (const candidate of candidates) {
         if (!fs.existsSync(candidate) || !fs.statSync(candidate).isFile()) {
             continue;
@@ -293,8 +284,7 @@ export const vikePluginDocusaurus = (options = {}) => {
                 const url = req.originalUrl ?? req.url ?? "";
                 if (!url.startsWith(mountPath))
                     return next();
-                if (buildManager &&
-                    tryServeStaticFile(buildManager.outputDir, url, mountPath, res)) {
+                if (buildManager && tryServeStaticFile(buildManager.outputDir, url, mountPath, res)) {
                     return;
                 }
                 if (proxyPort != null) {

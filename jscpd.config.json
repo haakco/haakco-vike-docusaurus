@@ -1,0 +1,9 @@
+{
+  "absolute": false,
+  "threshold": 0,
+  "minLines": 5,
+  "minTokens": 50,
+  "reporters": ["consoleFull"],
+  "ignore": ["**/node_modules/**", "**/dist/**", "**/coverage/**", "**/packages/**"],
+  "files": ["src/**/*.ts", "package.json", "tsconfig.json", "vitest.config.ts", "README.md"]
+}

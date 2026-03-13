@@ -30,8 +30,7 @@ const main = async () => {
 };
 
 main().catch((error) => {
-  const normalizedError =
-    error instanceof Error ? error : new Error(String(error));
+  const normalizedError = error instanceof Error ? error : new Error(String(error));
   console.error(normalizedError.message);
   process.exitCode = 1;
 });

@@ -39,7 +39,7 @@ export const resolvePagefindSearchFeatures = (options) => ({
     defaultSort: resolveDefaultSort(options),
     subResultLimit: resolveSubResultLimit(options),
 });
-const withTrailingSlash = (value) => value.endsWith("/") ? value : `${value}/`;
+const withTrailingSlash = (value) => (value.endsWith("/") ? value : `${value}/`);
 const buildBundlePath = (baseUrl, fileName) => `${withTrailingSlash(baseUrl)}pagefind/${fileName}`;
 const withSearchParam = (url, key, value) => {
     const parsed = new URL(url, "http://localhost");
