@@ -1,6 +1,6 @@
 {
   "name": "@haakco/vike-plugin-docusaurus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Vike plugin and build helpers for serving a Docusaurus site with Pagefind",
   "license": "MIT",
   "type": "module",
@@ -64,11 +64,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
-    "@types/node": "^24.12.2",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.5",
     "jscpd": "^4.0.9",
-    "typescript": "^5.9.2",
-    "vite": "^8.0.0",
-    "vitest": "^3.2.4"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10",
+    "vitest": "^4.1.5"
   }
 }
