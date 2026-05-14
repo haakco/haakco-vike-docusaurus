@@ -11,8 +11,8 @@ export type {
   PagefindSubResult,
   PagefindSubResultsFeatureOptions,
   ResolvedPagefindSearchFeatures,
-} from "./search.js";
+} from './search.js';
 export {
   createPagefindSearchClient,
   enablePagefindHighlighting,
-} from "./search.js";
+} from './search.js';

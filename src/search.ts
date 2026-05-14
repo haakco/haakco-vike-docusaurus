@@ -1,4 +1,4 @@
-type SearchSortValue = "asc" | "desc";
+type SearchSortValue = 'asc' | 'desc';
 
 type PagefindRawResult = {
   url: string;
@@ -122,15 +122,15 @@ const resolveHighlightFeature = <TMetadataField extends string>(
     return null;
   }
 
-  if (typeof feature === "object") {
+  if (typeof feature === 'object') {
     return {
-      param: feature.param ?? options.highlightParam ?? "highlight",
+      param: feature.param ?? options.highlightParam ?? 'highlight',
       constructorOptions: feature.constructorOptions ?? {},
     };
   }
 
   return {
-    param: options.highlightParam || "highlight",
+    param: options.highlightParam || 'highlight',
     constructorOptions: {},
   };
 };
@@ -162,7 +162,7 @@ const resolveSubResultLimit = <TMetadataField extends string>(
   const feature = options.features?.subResults;
 
   if (feature === false) return 0;
-  if (typeof feature === "object") return feature.maxItems;
+  if (typeof feature === 'object') return feature.maxItems;
   return undefined;
 };
 
@@ -176,13 +176,13 @@ export const resolvePagefindSearchFeatures = <TMetadataField extends string = st
   subResultLimit: resolveSubResultLimit(options),
 });
 
-const withTrailingSlash = (value: string) => (value.endsWith("/") ? value : `${value}/`);
+const withTrailingSlash = (value: string) => (value.endsWith('/') ? value : `${value}/`);
 
 const buildBundlePath = (baseUrl: string, fileName: string) =>
   `${withTrailingSlash(baseUrl)}pagefind/${fileName}`;
 
 const withSearchParam = (url: string, key: string, value: string) => {
-  const parsed = new URL(url, "http://localhost");
+  const parsed = new URL(url, 'http://localhost');
   parsed.searchParams.set(key, value);
   return `${parsed.pathname}${parsed.search}${parsed.hash}`;
 };
@@ -207,20 +207,20 @@ const resolveHighlightConstructor = (module: Record<string, unknown>) => {
     module.PagefindHighlight ??
     module.default ??
     (globalThis as Record<string, unknown>).PagefindHighlight;
-  if (typeof candidate !== "function") {
-    throw new Error("PagefindHighlight constructor not found in pagefind-highlight.js");
+  if (typeof candidate !== 'function') {
+    throw new Error('PagefindHighlight constructor not found in pagefind-highlight.js');
   }
   return candidate as PagefindHighlightConstructor;
 };
 
 export const enablePagefindHighlighting = async ({
   baseUrl,
-  highlightParam = "highlight",
+  highlightParam = 'highlight',
   constructorOptions = {},
 }: PagefindHighlightOptions) => {
   const module = (await import(
     /* webpackIgnore: true */
-    buildBundlePath(baseUrl, "pagefind-highlight.js")
+    buildBundlePath(baseUrl, 'pagefind-highlight.js')
   )) as Record<string, unknown>;
 
   const PagefindHighlight = resolveHighlightConstructor(module);
@@ -243,7 +243,7 @@ export const createPagefindSearchClient = <TMetadataField extends string = strin
   const loadModule = async () => {
     modulePromise ??= import(
       /* webpackIgnore: true */
-      buildBundlePath(baseUrl, "pagefind.js")
+      buildBundlePath(baseUrl, 'pagefind.js')
     ) as Promise<PagefindSearchModule>;
 
     const pagefind = await modulePromise;
@@ -260,7 +260,7 @@ export const createPagefindSearchClient = <TMetadataField extends string = strin
     search: async (
       query: string,
       options: PagefindSearchQueryOptions = {},
-    ): Promise<PagefindSearchResult<Record<TMetadataField | "title", string | undefined>>[]> => {
+    ): Promise<PagefindSearchResult<Record<TMetadataField | 'title', string | undefined>>[]> => {
       const pagefind = await loadModule();
 
       const response = await pagefind.search(query, {
@@ -273,19 +273,19 @@ export const createPagefindSearchClient = <TMetadataField extends string = strin
       const limitedResults = rawResults.slice(0, options.limit ?? rawResults.length);
 
       return limitedResults.map((result) => {
-        const meta = (result.meta ?? {}) as Record<TMetadataField | "title", string | undefined>;
+        const meta = (result.meta ?? {}) as Record<TMetadataField | 'title', string | undefined>;
         const url = resolvedFeatures.highlighting
           ? buildHighlightedSearchUrl(result.url, resolvedFeatures.highlighting.param, query)
           : result.url;
 
         return {
           url,
-          title: meta.title ?? "Untitled",
+          title: meta.title ?? 'Untitled',
           excerpt: result.excerpt,
           meta,
           metadata: pickMetadata(
             meta,
-            resolvedFeatures.metadataFields as readonly (TMetadataField | "title")[],
+            resolvedFeatures.metadataFields as readonly (TMetadataField | 'title')[],
           ),
           subResults: (result.sub_results ?? [])
             .slice(0, resolvedFeatures.subResultLimit ?? result.sub_results?.length)

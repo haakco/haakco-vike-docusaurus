@@ -41,7 +41,7 @@
     "lint:ci": "pnpm run lint",
     "lint:complexity": "pnpm exec biome lint src --colors=off --only=lint/complexity/noExcessiveCognitiveComplexity",
     "lint:dup": "pnpm exec jscpd --config jscpd.config.json",
-    "lint:fix": "pnpm exec biome check . --write --unsafe --colors=off",
+    "lint:fix": "pnpm exec biome check . --write --colors=off",
     "test": "pnpm exec vitest run --config vitest.config.ts",
     "test:ci": "pnpm exec vitest run --config vitest.config.ts --coverage",
     "verify": "pnpm run lint && pnpm run test:ci && pnpm run build"
