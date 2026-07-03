@@ -75,6 +75,11 @@ const normalizeMountPath = (mountPath: string) => {
   return `/${mountPath.replace(/^\/+|\/+$/g, '')}`;
 };
 
+export const matchesMountPath = (pathname: string, mountPath: string) => {
+  if (mountPath === '/') return true;
+  return pathname === mountPath || pathname.startsWith(`${mountPath}/`);
+};
+
 const resolveCommand = (command: string[], cwd: string) => {
   if (command.length === 0) {
     throw new Error('packageManagerCommand must include at least one command segment.');
@@ -209,31 +214,84 @@ const getRequestPathname = (requestPath: string) => {
   }
 };
 
+const stripMountPath = (pathname: string, mountPath: string) => {
+  if (mountPath === '/') return pathname;
+  return pathname.slice(mountPath.length) || '/';
+};
+
+const isPathInsideBase = (baseDir: string, candidate: string) => {
+  const relativePath = path.relative(baseDir, candidate);
+  return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+};
+
+const resolveStaticFileCandidateSync = (
+  baseDir: string,
+  requestPath: string,
+  mountPath: string,
+) => {
+  const pathname = getRequestPathname(requestPath);
+  if (!matchesMountPath(pathname, mountPath)) {
+    return null;
+  }
+
+  let filePath = stripMountPath(pathname, mountPath);
+  if (!filePath || filePath === '/') filePath = '/index.html';
+
+  let decodedFilePath: string;
+  try {
+    decodedFilePath = decodeURIComponent(filePath);
+  } catch {
+    return null;
+  }
+
+  if (decodedFilePath.includes('\0')) {
+    return null;
+  }
+
+  const relativeFilePath = decodedFilePath.replace(/^\/+/, '');
+  const candidates = [
+    path.resolve(baseDir, relativeFilePath),
+    path.resolve(baseDir, relativeFilePath, 'index.html'),
+  ];
+
+  for (const candidate of candidates) {
+    if (!isPathInsideBase(baseDir, candidate)) {
+      continue;
+    }
+
+    if (!fs.existsSync(candidate) || !fs.statSync(candidate).isFile()) {
+      continue;
+    }
+
+    return candidate;
+  }
+
+  return null;
+};
+
+export const resolveStaticFileCandidate = async (
+  baseDir: string,
+  requestPath: string,
+  mountPath: string,
+) => resolveStaticFileCandidateSync(baseDir, requestPath, mountPath);
+
 const tryServeStaticFile = (
   baseDir: string,
   requestPath: string,
   mountPath: string,
   res: http.ServerResponse,
 ) => {
-  const pathname = getRequestPathname(requestPath);
-  let filePath = pathname.replace(new RegExp(`^${mountPath}`), '');
-  if (!filePath || filePath === '/') filePath = '/index.html';
+  const candidate = resolveStaticFileCandidateSync(baseDir, requestPath, mountPath);
 
-  const candidates = [path.join(baseDir, filePath), path.join(baseDir, filePath, 'index.html')];
-
-  for (const candidate of candidates) {
-    if (!fs.existsSync(candidate) || !fs.statSync(candidate).isFile()) {
-      continue;
-    }
-
-    const ext = path.extname(candidate);
-    const contentType = MIME_TYPES[ext] ?? 'application/octet-stream';
-    res.setHeader('Content-Type', contentType);
-    res.end(fs.readFileSync(candidate));
-    return true;
+  if (!candidate) {
+    return false;
   }
 
-  return false;
+  const ext = path.extname(candidate);
+  const contentType = MIME_TYPES[ext] ?? 'application/octet-stream';
+  res.setHeader('Content-Type', contentType);
+  res.end(fs.readFileSync(candidate));
+  return true;
 };
 
 class DocsBuildManager {
@@ -364,7 +422,7 @@ export const vikePluginDocusaurus = (options: VikeDocusaurusPluginOptions = {}):
 
       server.middlewares.use((req, res, next) => {
         const url = req.originalUrl ?? req.url ?? '';
-        if (!url.startsWith(mountPath)) return next();
+        if (!matchesMountPath(getRequestPathname(url), mountPath)) return next();
 
         if (buildManager && tryServeStaticFile(buildManager.outputDir, url, mountPath, res)) {
           return;
@@ -420,4 +478,5 @@ export type {
 export {
   createPagefindSearchClient,
   enablePagefindHighlighting,
+  sanitizePagefindExcerptHtml,
 } from './search.js';

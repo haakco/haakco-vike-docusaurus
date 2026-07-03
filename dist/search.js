@@ -1,17 +1,21 @@
 export const buildHighlightedSearchUrl = (url, key, value) => withSearchParam(url, key, value);
+export const sanitizePagefindExcerptHtml = (html) => html
+    .replace(/<mark\b[^>]*>/gi, '<mark>')
+    .replace(/<\/mark>/gi, '</mark>')
+    .replace(/<(?!\/?mark\b)[^>]*>/gi, '');
 const resolveHighlightFeature = (options) => {
     const feature = options.features?.highlighting;
     if (feature === false || options.highlightParam === false) {
         return null;
     }
-    if (typeof feature === "object") {
+    if (typeof feature === 'object') {
         return {
-            param: feature.param ?? options.highlightParam ?? "highlight",
+            param: feature.param ?? options.highlightParam ?? 'highlight',
             constructorOptions: feature.constructorOptions ?? {},
         };
     }
     return {
-        param: options.highlightParam || "highlight",
+        param: options.highlightParam || 'highlight',
         constructorOptions: {},
     };
 };
@@ -28,7 +32,7 @@ const resolveSubResultLimit = (options) => {
     const feature = options.features?.subResults;
     if (feature === false)
         return 0;
-    if (typeof feature === "object")
+    if (typeof feature === 'object')
         return feature.maxItems;
     return undefined;
 };
@@ -39,10 +43,10 @@ export const resolvePagefindSearchFeatures = (options) => ({
     defaultSort: resolveDefaultSort(options),
     subResultLimit: resolveSubResultLimit(options),
 });
-const withTrailingSlash = (value) => (value.endsWith("/") ? value : `${value}/`);
+const withTrailingSlash = (value) => (value.endsWith('/') ? value : `${value}/`);
 const buildBundlePath = (baseUrl, fileName) => `${withTrailingSlash(baseUrl)}pagefind/${fileName}`;
 const withSearchParam = (url, key, value) => {
-    const parsed = new URL(url, "http://localhost");
+    const parsed = new URL(url, 'http://localhost');
     parsed.searchParams.set(key, value);
     return `${parsed.pathname}${parsed.search}${parsed.hash}`;
 };
@@ -59,15 +63,15 @@ const resolveHighlightConstructor = (module) => {
     const candidate = module.PagefindHighlight ??
         module.default ??
         globalThis.PagefindHighlight;
-    if (typeof candidate !== "function") {
-        throw new Error("PagefindHighlight constructor not found in pagefind-highlight.js");
+    if (typeof candidate !== 'function') {
+        throw new Error('PagefindHighlight constructor not found in pagefind-highlight.js');
     }
     return candidate;
 };
-export const enablePagefindHighlighting = async ({ baseUrl, highlightParam = "highlight", constructorOptions = {}, }) => {
+export const enablePagefindHighlighting = async ({ baseUrl, highlightParam = 'highlight', constructorOptions = {}, }) => {
     const module = (await import(
     /* webpackIgnore: true */
-    buildBundlePath(baseUrl, "pagefind-highlight.js")));
+    buildBundlePath(baseUrl, 'pagefind-highlight.js')));
     const PagefindHighlight = resolveHighlightConstructor(module);
     return new PagefindHighlight({
         highlightParam,
@@ -81,12 +85,18 @@ export const createPagefindSearchClient = ({ baseUrl, ...options }) => {
         ...options,
     });
     const loadModule = async () => {
-        modulePromise ??= import(
-        /* webpackIgnore: true */
-        buildBundlePath(baseUrl, "pagefind.js"));
-        const pagefind = await modulePromise;
-        await pagefind.init();
-        return pagefind;
+        try {
+            modulePromise ??= import(
+            /* webpackIgnore: true */
+            buildBundlePath(baseUrl, 'pagefind.js'));
+            const pagefind = await modulePromise;
+            await pagefind.init();
+            return pagefind;
+        }
+        catch (error) {
+            modulePromise = null;
+            throw error;
+        }
     };
     return {
         init: loadModule,
@@ -109,7 +119,7 @@ export const createPagefindSearchClient = ({ baseUrl, ...options }) => {
                     : result.url;
                 return {
                     url,
-                    title: meta.title ?? "Untitled",
+                    title: meta.title ?? 'Untitled',
                     excerpt: result.excerpt,
                     meta,
                     metadata: pickMetadata(meta, resolvedFeatures.metadataFields),

@@ -1,4 +1,4 @@
-import type { PluginOption } from "vite";
+import type { PluginOption } from 'vite';
 type MaybePromise<T> = T | Promise<T>;
 export interface DocusaurusBuildOptions {
     rootDir?: string;
@@ -23,7 +23,9 @@ export interface VikeDocusaurusPluginOptions extends DocusaurusBuildOptions {
 interface BuildResult {
     outputDir: string;
 }
+export declare const matchesMountPath: (pathname: string, mountPath: string) => boolean;
 export declare const buildDocusaurusSite: (options?: DocusaurusBuildOptions) => Promise<BuildResult>;
+export declare const resolveStaticFileCandidate: (baseDir: string, requestPath: string, mountPath: string) => Promise<string | null>;
 export declare const vikePluginDocusaurus: (options?: VikeDocusaurusPluginOptions) => PluginOption;
-export type { PagefindBrowserSearchOptions, PagefindFiltersFeatureOptions, PagefindHighlightFeatureOptions, PagefindHighlightOptions, PagefindMetadataFeatureOptions, PagefindSearchFeatures, PagefindSearchQueryOptions, PagefindSearchResult, PagefindSortingFeatureOptions, PagefindSubResult, PagefindSubResultsFeatureOptions, ResolvedPagefindSearchFeatures, } from "./search.js";
-export { createPagefindSearchClient, enablePagefindHighlighting, } from "./search.js";
+export type { PagefindBrowserSearchOptions, PagefindFiltersFeatureOptions, PagefindHighlightFeatureOptions, PagefindHighlightOptions, PagefindMetadataFeatureOptions, PagefindSearchFeatures, PagefindSearchQueryOptions, PagefindSearchResult, PagefindSortingFeatureOptions, PagefindSubResult, PagefindSubResultsFeatureOptions, ResolvedPagefindSearchFeatures, } from './search.js';
+export { createPagefindSearchClient, enablePagefindHighlighting, sanitizePagefindExcerptHtml, } from './search.js';

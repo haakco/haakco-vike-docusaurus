@@ -1,1 +1,1 @@
-export { createPagefindSearchClient, enablePagefindHighlighting, } from "./search.js";
+export { createPagefindSearchClient, enablePagefindHighlighting, sanitizePagefindExcerptHtml, } from './search.js';

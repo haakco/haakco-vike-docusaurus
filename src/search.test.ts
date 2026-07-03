@@ -3,7 +3,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { buildHighlightedSearchUrl, resolvePagefindSearchFeatures } from './search.js';
+import {
+  buildHighlightedSearchUrl,
+  resolvePagefindSearchFeatures,
+  sanitizePagefindExcerptHtml,
+} from './search.js';
 
 const temporaryDirectories: string[] = [];
 
@@ -81,6 +85,16 @@ describe('buildHighlightedSearchUrl', () => {
     expect(
       buildHighlightedSearchUrl('/docs/mcp/?highlight=old#section-1', 'highlight', 'MCP'),
     ).toBe('/docs/mcp/?highlight=MCP#section-1');
+  });
+});
+
+describe('sanitizePagefindExcerptHtml', () => {
+  it('keeps mark highlights while stripping other tags and attributes', () => {
+    expect(
+      sanitizePagefindExcerptHtml(
+        '<span>Read</span> <mark class="pagefind-highlight">docs</mark><img src=x onerror=alert(1)>',
+      ),
+    ).toBe('Read <mark>docs</mark>');
   });
 });
 

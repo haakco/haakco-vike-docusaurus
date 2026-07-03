@@ -1,4 +1,4 @@
-type SearchSortValue = "asc" | "desc";
+type SearchSortValue = 'asc' | 'desc';
 type PagefindRawResult = {
     url: string;
     excerpt: string;
@@ -88,6 +88,7 @@ export interface ResolvedPagefindSearchFeatures<TMetadataField extends string = 
     subResultLimit?: number;
 }
 export declare const buildHighlightedSearchUrl: (url: string, key: string, value: string) => string;
+export declare const sanitizePagefindExcerptHtml: (html: string) => string;
 export declare const resolvePagefindSearchFeatures: <TMetadataField extends string = string>(options: PagefindBrowserSearchOptions<TMetadataField>) => ResolvedPagefindSearchFeatures<TMetadataField>;
 export declare const enablePagefindHighlighting: ({ baseUrl, highlightParam, constructorOptions, }: PagefindHighlightOptions) => Promise<unknown>;
 export declare const createPagefindSearchClient: <TMetadataField extends string = string>({ baseUrl, ...options }: PagefindBrowserSearchOptions<TMetadataField>) => {

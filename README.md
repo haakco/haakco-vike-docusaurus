@@ -38,6 +38,7 @@ Use the browser-safe export in Docusaurus theme code:
 import {
   createPagefindSearchClient,
   enablePagefindHighlighting,
+  sanitizePagefindExcerptHtml,
 } from '@haakco/vike-plugin-docusaurus/browser';
 
 const search = createPagefindSearchClient({
@@ -50,6 +51,8 @@ const search = createPagefindSearchClient({
     sorting: false,
   },
 });
+
+const safeExcerptHtml = sanitizePagefindExcerptHtml(result.excerpt);
 ```
 
 Use `enablePagefindHighlighting()` from `docs-site/src/theme/Root.tsx` to highlight terms after navigation:

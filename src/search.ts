@@ -113,6 +113,12 @@ export interface ResolvedPagefindSearchFeatures<TMetadataField extends string = 
 export const buildHighlightedSearchUrl = (url: string, key: string, value: string) =>
   withSearchParam(url, key, value);
 
+export const sanitizePagefindExcerptHtml = (html: string) =>
+  html
+    .replace(/<mark\b[^>]*>/gi, '<mark>')
+    .replace(/<\/mark>/gi, '</mark>')
+    .replace(/<(?!\/?mark\b)[^>]*>/gi, '');
+
 const resolveHighlightFeature = <TMetadataField extends string>(
   options: PagefindBrowserSearchOptions<TMetadataField>,
 ) => {
@@ -241,14 +247,19 @@ export const createPagefindSearchClient = <TMetadataField extends string = strin
   });
 
   const loadModule = async () => {
-    modulePromise ??= import(
-      /* webpackIgnore: true */
-      buildBundlePath(baseUrl, 'pagefind.js')
-    ) as Promise<PagefindSearchModule>;
+    try {
+      modulePromise ??= import(
+        /* webpackIgnore: true */
+        buildBundlePath(baseUrl, 'pagefind.js')
+      ) as Promise<PagefindSearchModule>;
 
-    const pagefind = await modulePromise;
-    await pagefind.init();
-    return pagefind;
+      const pagefind = await modulePromise;
+      await pagefind.init();
+      return pagefind;
+    } catch (error) {
+      modulePromise = null;
+      throw error;
+    }
   };
 
   return {
