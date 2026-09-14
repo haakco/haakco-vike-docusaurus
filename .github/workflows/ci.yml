@@ -8,7 +8,7 @@ on:
 
 jobs:
   verify:
-    runs-on: self-hosted
+    runs-on: [self-hosted, haakco]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
