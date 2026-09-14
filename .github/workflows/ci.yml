@@ -8,13 +8,7 @@ on:
 
 jobs:
   verify:
-    runs-on: haakco-build
-    container:
-      image: ghcr.io/haakco/actions-runner:1
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-      options: --user root
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
